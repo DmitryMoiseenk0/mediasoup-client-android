@@ -1,9 +1,10 @@
+#include "mediasoupclient.hpp"
 #include "FakeTransportListener.hpp"
 #include "MediaSoupClientErrors.hpp"
 #include "MediaStreamTrackFactory.hpp"
 #include "fakeParameters.hpp"
-#include "mediasoupclient.hpp"
 #include <catch.hpp>
+#include <iostream>
 #include <vector>
 
 TEST_CASE("mediasoupclient", "[mediasoupclient]")
@@ -26,13 +27,15 @@ TEST_CASE("mediasoupclient", "[mediasoupclient]")
 	static std::unique_ptr<mediasoupclient::DataProducer> dataProducer;
 	static std::unique_ptr<mediasoupclient::DataConsumer> dataConsumer;
 
-	static rtc::scoped_refptr<webrtc::AudioTrackInterface> audioTrack;
-	static rtc::scoped_refptr<webrtc::VideoTrackInterface> videoTrack;
+	static webrtc::scoped_refptr<webrtc::AudioTrackInterface> audioTrack;
+	static webrtc::scoped_refptr<webrtc::VideoTrackInterface> videoTrack;
 
 	static FakeProducerListener producerListener;
 	static FakeConsumerListener consumerListener;
 
 	static json routerRtpCapabilities;
+
+	MediaStreamTrackFactory& singleton = MediaStreamTrackFactory::getInstance();
 
 	SECTION("create a Device succeeds")
 	{
@@ -60,7 +63,7 @@ TEST_CASE("mediasoupclient", "[mediasoupclient]")
 		    TransportRemoteParameters["iceParameters"],
 		    TransportRemoteParameters["iceCandidates"],
 		    TransportRemoteParameters["dtlsParameters"],
-		    nullptr),
+		    &singleton.PeerConnectionOptions),
 		  MediaSoupClientInvalidStateError);
 	}
 
@@ -132,7 +135,7 @@ TEST_CASE("mediasoupclient", "[mediasoupclient]")
 		  TransportRemoteParameters["iceCandidates"],
 		  TransportRemoteParameters["dtlsParameters"],
 		  TransportRemoteParameters["sctpParameters"],
-		  nullptr,
+		  &singleton.PeerConnectionOptions,
 		  appData)));
 
 		REQUIRE(sendTransport->GetId() == TransportRemoteParameters["id"].get<std::string>());
@@ -149,7 +152,7 @@ TEST_CASE("mediasoupclient", "[mediasoupclient]")
 		  TransportRemoteParameters["iceParameters"],
 		  TransportRemoteParameters["iceCandidates"],
 		  TransportRemoteParameters["dtlsParameters"],
-		  nullptr)));
+		  &singleton.PeerConnectionOptions)));
 
 		REQUIRE(recvTransport->GetId() == TransportRemoteParameters["id"].get<std::string>());
 		REQUIRE(!recvTransport->IsClosed());
@@ -324,7 +327,7 @@ TEST_CASE("mediasoupclient", "[mediasoupclient]")
 		  TransportRemoteParameters["iceParameters"],
 		  TransportRemoteParameters["iceCandidates"],
 		  TransportRemoteParameters["dtlsParameters"],
-		  nullptr,
+		  &singleton.PeerConnectionOptions,
 		  appData)));
 
 		REQUIRE_THROWS_AS(
@@ -648,7 +651,7 @@ TEST_CASE("mediasoupclient", "[mediasoupclient]")
 		auto newAudioTrack = createAudioTrack("audio-track-id-2");
 
 		REQUIRE_NOTHROW(audioProducer->ReplaceTrack(newAudioTrack.get()));
-		REQUIRE(audioProducer->GetTrack() == newAudioTrack.get());
+		REQUIRE(audioProducer->GetTrack() == newAudioTrack);
 		// Producer was already paused.
 		REQUIRE(audioProducer->IsPaused());
 
@@ -658,7 +661,7 @@ TEST_CASE("mediasoupclient", "[mediasoupclient]")
 		auto newVideoTrack = createVideoTrack("video-track-id-2");
 
 		REQUIRE_NOTHROW(videoProducer->ReplaceTrack(newVideoTrack.get()));
-		REQUIRE(videoProducer->GetTrack() == newVideoTrack.get());
+		REQUIRE(videoProducer->GetTrack() == newVideoTrack);
 		REQUIRE(!videoProducer->IsPaused());
 
 		videoTrack.release();

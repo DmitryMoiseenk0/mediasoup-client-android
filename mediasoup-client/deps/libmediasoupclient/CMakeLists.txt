@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(mediasoupclient LANGUAGES CXX)
 
@@ -6,8 +6,8 @@ include(FetchContent)
 
 # Set version number.
 set(mediasoupclient_VERSION_MAJOR 3)
-set(mediasoupclient_VERSION_MINOR 4)
-set(mediasoupclient_VERSION_PATCH 1)
+set(mediasoupclient_VERSION_MINOR 5)
+set(mediasoupclient_VERSION_PATCH 0)
 
 # Configure a header file to pass the version.
 configure_file (
@@ -17,7 +17,7 @@ configure_file (
 )
 
 # C++ standard requirements.
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Project options.
@@ -26,8 +26,12 @@ option(MEDIASOUPCLIENT_LOG_TRACE   "Enable MSC_LOG_TRACE (See Logger.hpp)" OFF)
 option(MEDIASOUPCLIENT_LOG_DEV     "Enable MSC_LOG_DEV (See Logger.hpp)" OFF)
 
 # Project configuration.
-set(LIBWEBRTC_INCLUDE_PATH "" CACHE STRING "libwebrtc include path")
-set(LIBWEBRTC_BINARY_PATH "" CACHE STRING "libwebrtc binary path")
+if(NOT LIBWEBRTC_INCLUDE_PATH)
+	set(LIBWEBRTC_INCLUDE_PATH "" CACHE STRING "libwebrtc include path")
+endif()
+if(NOT LIBWEBRTC_BINARY_PATH)
+	set(LIBWEBRTC_BINARY_PATH "" CACHE STRING "libwebrtc binary path")
+endif()
 
 if(NOT LIBWEBRTC_INCLUDE_PATH)
 	message(FATAL_ERROR "LIBWEBRTC_INCLUDE_PATH not provided")
@@ -113,15 +117,15 @@ endif()
 message(STATUS "\nFetching libsdptransform...\n")
 FetchContent_Declare(
 	libsdptransform
-  	GIT_REPOSITORY https://github.com/ibc/libsdptransform.git
-  	GIT_TAG 1.2.10
+  	GIT_REPOSITORY https://github.com/vlprojects/libsdptransform.git
+  	GIT_TAG f0588dd74adca46fd4c9bbfa1b31da426fac1085
 )
 FetchContent_MakeAvailable(libsdptransform)
 
 # Add some compile flags to our source files.
 if(MSVC)
 	set_source_files_properties(${SOURCE_FILES}
-		PROPERTIES COMPILE_FLAGS "/W3 /WX")
+		PROPERTIES COMPILE_FLAGS "/W3")
 else()
 	set_source_files_properties(${SOURCE_FILES}
 		PROPERTIES COMPILE_FLAGS -Wall -Wextra -Wpedantic)
@@ -132,7 +136,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include
 
 # Public (interface) headers from dependencies.
 target_include_directories(${PROJECT_NAME} PUBLIC
-    "${libsdptransform_SOURCE_DIR}/include"
+    ${libsdptransform_SOURCE_DIR}/include
 	"${LIBWEBRTC_INCLUDE_PATH}"
 	"${LIBWEBRTC_INCLUDE_PATH}/third_party/abseil-cpp"
 )

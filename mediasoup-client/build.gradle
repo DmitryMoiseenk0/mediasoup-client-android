@@ -9,14 +9,14 @@ def WEBRTC_INC_PATH = "${projectDir}/deps/webrtc/src"
 def WEBRTC_LIB_PATH = "${projectDir}/deps/webrtc/lib"
 
 android {
-    compileSdkVersion 31
-    ndkVersion '25.1.8937393'
+    namespace 'org.mediasoup.droid'
+    testNamespace 'org.mediasoup.droid.test'
+
+    compileSdk 35
+    ndkVersion '27.1.12297006'
 
     defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 31
-        versionCode 340
-        versionName '3.4.1'
+        minSdk 23
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -48,14 +48,22 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     externalNativeBuild {
         cmake {
             // Provides a relative path to your CMake build script.
             path "CMakeLists.txt"
+        }
+    }
+
+    // AGP 8 requires the published variant to be declared explicitly,
+    // otherwise `components.release` does not exist.
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
         }
     }
 }
@@ -75,11 +83,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
-}
-
 afterEvaluate {
     publishing {
         publications {
@@ -88,7 +91,7 @@ afterEvaluate {
 
                 groupId = 'com.sequenia.gitlab.outsource'
                 artifactId = 'mediasoup-client'
-                version = '3.4.1'
+                version = '3.5.0'
             }
         }
     }

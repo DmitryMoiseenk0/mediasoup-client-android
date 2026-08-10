@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 include(FetchContent)
 
@@ -80,4 +80,5 @@ add_subdirectory(deps/libwebrtc "${CMAKE_CURRENT_BINARY_DIR}/libwebrtc")
 # Public (interface) dependencies.
 target_link_libraries(test_mediasoupclient PUBLIC
 	webrtc
+	${LIBWEBRTC_BINARY_PATH}/libwebrtc${CMAKE_STATIC_LIBRARY_SUFFIX}
 )

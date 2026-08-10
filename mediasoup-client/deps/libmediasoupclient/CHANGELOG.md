@@ -1,6 +1,19 @@
 # Changelog
 
 
+### 3.5.0
+
+* Update to libwebrtc M140/7339 ([#173](https://github.com/versatica/libmediasoupclient/pull/188)). Credits to @revidee.
+
+### 3.4.3
+
+* Update to libwebrtc M120/6099 ([#173](https://github.com/versatica/libmediasoupclient/pull/173)). Thanks @Poldraunic, @janreyho, @copiltembel.
+
+### 3.4.2
+
+* Fix explicit codec selection ([#164](https://github.com/versatica/libmediasoupclient/pull/164)). Thanks @fedulvtubudul.
+
+
 ### 3.4.1
 
 * Clear the stored transceivers before closing the PeerConnection ([#156](https://github.com/versatica/libmediasoupclient/pull/156)). Thanks @adriancretu.

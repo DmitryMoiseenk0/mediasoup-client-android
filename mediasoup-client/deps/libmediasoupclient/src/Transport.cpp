@@ -12,8 +12,8 @@ namespace mediasoupclient
 	/* Transport */
 
 	Transport::Transport(
-	  Listener* listener, const std::string& id, const json* extendedRtpCapabilities, const json& appData)
-	  : extendedRtpCapabilities(extendedRtpCapabilities), listener(listener), id(id), appData(appData)
+	  Listener* listener, const std::string& id, const json& appData)
+	  : listener(listener), id(id), appData(appData)
 	{
 		MSC_TRACE();
 	}
@@ -118,8 +118,8 @@ namespace mediasoupclient
 		  this, PeerConnection::iceConnectionState2String[connectionState]);
 	}
 
-	void Transport::UpdateIceTransportType(
-			const webrtc::PeerConnectionInterface::IceTransportsType type) {
+	void Transport::UpdateIceTransportType(const webrtc::PeerConnectionInterface::IceTransportsType type)
+	{
 		MSC_TRACE();
 
 		if (this->closed)
@@ -138,11 +138,11 @@ namespace mediasoupclient
 	  const json& dtlsParameters,
 	  const json& sctpParameters,
 	  const PeerConnection::Options* peerConnectionOptions,
-	  const json* extendedRtpCapabilities,
+	  const std::function<nlohmann::json(nlohmann::json&)>& getSendExtendedRtpCapabilities,
 	  const std::map<std::string, bool>* canProduceByKind,
 	  const json& appData)
 
-	  : Transport(listener, id, extendedRtpCapabilities, appData), listener(listener),
+	  : Transport(listener, id, appData), listener(listener),
 	    canProduceByKind(canProduceByKind)
 	{
 		MSC_TRACE();
@@ -156,16 +156,6 @@ namespace mediasoupclient
 				this->maxSctpMessageSize = maxMessageSizeIt->get<size_t>();
 		}
 
-		json sendingRtpParametersByKind = {
-			{ "audio", ortc::getSendingRtpParameters("audio", *extendedRtpCapabilities) },
-			{ "video", ortc::getSendingRtpParameters("video", *extendedRtpCapabilities) }
-		};
-
-		json sendingRemoteRtpParametersByKind = {
-			{ "audio", ortc::getSendingRemoteRtpParameters("audio", *extendedRtpCapabilities) },
-			{ "video", ortc::getSendingRemoteRtpParameters("video", *extendedRtpCapabilities) }
-		};
-
 		this->sendHandler.reset(new SendHandler(
 		  dynamic_cast<SendHandler::PrivateListener*>(this),
 		  iceParameters,
@@ -173,8 +163,7 @@ namespace mediasoupclient
 		  dtlsParameters,
 		  sctpParameters,
 		  peerConnectionOptions,
-		  sendingRtpParametersByKind,
-		  sendingRemoteRtpParametersByKind));
+		  getSendExtendedRtpCapabilities));
 
 		Transport::SetHandler(this->sendHandler.get());
 	}
@@ -212,7 +201,8 @@ namespace mediasoupclient
 			std::for_each(
 			  encodings->begin(),
 			  encodings->end(),
-			  [&normalizedEncodings](const webrtc::RtpEncodingParameters& entry) {
+			  [&normalizedEncodings](const webrtc::RtpEncodingParameters& entry)
+			  {
 				  webrtc::RtpEncodingParameters encoding;
 
 				  encoding.active                   = entry.active;
@@ -242,7 +232,7 @@ namespace mediasoupclient
 		{
 			this->sendHandler->StopSending(sendResult.localId);
 
-			throw;
+			throw error;
 		}
 
 		auto* producer = new Producer(
@@ -389,9 +379,10 @@ namespace mediasoupclient
 	  const json& dtlsParameters,
 	  const json& sctpParameters,
 	  const PeerConnection::Options* peerConnectionOptions,
-	  const json* extendedRtpCapabilities,
+	  const json* recvRtpCapabilities,
 	  const json& appData)
-	  : Transport(listener, id, extendedRtpCapabilities, appData)
+	  : Transport(listener, id, appData)
+	  , recvRtpCapabilities(recvRtpCapabilities)
 	{
 		MSC_TRACE();
 
@@ -433,7 +424,7 @@ namespace mediasoupclient
 			MSC_THROW_TYPE_ERROR("missing rtpParameters");
 		else if (!appData.is_object())
 			MSC_THROW_TYPE_ERROR("appData must be a JSON object");
-		else if (!ortc::canReceive(*rtpParameters, *this->extendedRtpCapabilities))
+		else if (!ortc::canReceive(*rtpParameters, *this->recvRtpCapabilities))
 			MSC_THROW_UNSUPPORTED_ERROR("cannot consume this Producer");
 
 		// May throw.

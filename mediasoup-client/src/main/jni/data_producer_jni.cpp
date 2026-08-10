@@ -134,7 +134,7 @@ void JNI_DataProducer_Send(
 	  webrtc::JavaToNativeByteArray(env, webrtc::JavaParamRef<jbyteArray>(env, data.obj()));
 	reinterpret_cast<OwnedDataProducer*>(j_producer)
 	  ->dataProducer()
-	  ->Send(webrtc::DataBuffer(rtc::CopyOnWriteBuffer(buffer.data(), buffer.size()), binary));
+	  ->Send(webrtc::DataBuffer(webrtc::CopyOnWriteBuffer(buffer.data(), buffer.size()), binary));
 }
 
 ScopedJavaLocalRef<jobject> NativeToJavaDataProducer(

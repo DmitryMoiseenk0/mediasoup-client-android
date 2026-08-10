@@ -115,7 +115,7 @@ static void JNI_PeerConnection_SetLocalDescription(
 	try
 	{
 		ExtractNativePC(env, j_pc)->SetLocalDescription(
-		  static_cast<PeerConnection::SdpType>(j_type), std_description);
+		  static_cast<webrtc::SdpType>(j_type), std_description);
 	}
 	catch (const std::exception& e)
 	{
@@ -134,7 +134,7 @@ static void JNI_PeerConnection_SetRemoteDescription(
 	try
 	{
 		ExtractNativePC(env, j_pc)->SetRemoteDescription(
-		  static_cast<PeerConnection::SdpType>(j_type), std_description);
+		  static_cast<webrtc::SdpType>(j_type), std_description);
 	}
 	catch (const std::exception& e)
 	{
@@ -187,7 +187,7 @@ static jboolean JNI_PeerConnection_RemoveTrack(
 	MSC_TRACE();
 
 	auto sender = reinterpret_cast<webrtc::RtpSenderInterface*>(native_sender);
-	auto result = ExtractNativePC(env, j_pc)->RemoveTrack(rtc::scoped_refptr<webrtc::RtpSenderInterface>(sender));
+	auto result = ExtractNativePC(env, j_pc)->RemoveTrack(webrtc::scoped_refptr<webrtc::RtpSenderInterface>(sender));
 	return static_cast<jboolean>(result);
 }
 
@@ -195,19 +195,18 @@ static ScopedJavaLocalRef<jobject> JNI_PeerConnection_AddTransceiverWithTrack(
   JNIEnv* env, const JavaParamRef<jobject>& j_pc, jlong native_track, const JavaParamRef<jobject>& j_init)
 {
 	MSC_TRACE();
-	auto track = reinterpret_cast<webrtc::MediaStreamTrackInterface*>(native_track);
-	webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>> result =
-      ExtractNativePC(env, j_pc)->AddTransceiver(
-          rtc::scoped_refptr<webrtc::MediaStreamTrackInterface>(track),
-          webrtc::jni::JavaToNativeRtpTransceiverInit(env, webrtc::JavaParamRef<jobject>(j_init.obj())));
-	if (!result.ok())
+	auto track       = reinterpret_cast<webrtc::MediaStreamTrackInterface*>(native_track);
+	auto transceiver = ExtractNativePC(env, j_pc)->AddTransceiver(
+	  webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface>(track),
+	  webrtc::jni::JavaToNativeRtpTransceiverInit(env, webrtc::JavaParamRef<jobject>(j_init.obj())));
+	if (transceiver == nullptr)
 	{
-		MSC_ERROR("Failed to add transceiver: %s", result.error().message());
+		MSC_ERROR("Failed to add transceiver");
 		return nullptr;
 	}
 	else
 	{
-		auto j_result = webrtc::jni::NativeToJavaRtpTransceiver(env, result.MoveValue());
+		auto j_result = webrtc::jni::NativeToJavaRtpTransceiver(env, transceiver);
 		return ScopedJavaLocalRef<jobject>(env, j_result.obj());
 	}
 }
@@ -219,16 +218,15 @@ static ScopedJavaLocalRef<jobject> JNI_PeerConnection_AddTransceiverOfType(
 
 	auto media_type =
 	  webrtc::jni::JavaToNativeMediaType(env, webrtc::JavaParamRef<jobject>(j_media_type));
-	webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpTransceiverInterface>> result =
-	  ExtractNativePC(env, j_pc)->AddTransceiver(media_type);
-	if (!result.ok())
+	auto transceiver = ExtractNativePC(env, j_pc)->AddTransceiver(media_type);
+	if (transceiver == nullptr)
 	{
-		MSC_ERROR("Failed to add transceiver: %s", result.error().message());
+		MSC_ERROR("Failed to add transceiver");
 		return nullptr;
 	}
 	else
 	{
-		auto j_result = webrtc::jni::NativeToJavaRtpTransceiver(env, result.MoveValue());
+		auto j_result = webrtc::jni::NativeToJavaRtpTransceiver(env, transceiver);
 		return ScopedJavaLocalRef<jobject>(env, j_result.obj());
 	}
 }
@@ -256,7 +254,7 @@ static ScopedJavaLocalRef<jstring> JNI_PeerConnection_GetStatsForRtpSender(
 
 	auto selector = reinterpret_cast<webrtc::RtpSenderInterface*>(j_selector);
 	auto stats =
-	  ExtractNativePC(env, j_pc)->GetStats(rtc::scoped_refptr<webrtc::RtpSenderInterface>(selector)).dump();
+	  ExtractNativePC(env, j_pc)->GetStats(webrtc::scoped_refptr<webrtc::RtpSenderInterface>(selector)).dump();
 	return NativeToJavaString(env, stats);
 }
 
@@ -267,7 +265,7 @@ static ScopedJavaLocalRef<jstring> JNI_PeerConnection_GetStatsForRtpReceiver(
 
 	auto selector = reinterpret_cast<webrtc::RtpReceiverInterface*>(j_selector);
 	auto stats    = ExtractNativePC(env, j_pc)
-	               ->GetStats(rtc::scoped_refptr<webrtc::RtpReceiverInterface>(selector))
+	               ->GetStats(webrtc::scoped_refptr<webrtc::RtpReceiverInterface>(selector))
 	               .dump();
 	return NativeToJavaString(env, stats);
 }

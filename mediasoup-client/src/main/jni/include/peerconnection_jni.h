@@ -25,19 +25,19 @@ public:
 		observerJni.OnSignalingChange(newState);
 	}
 
-	void OnAddStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) override
+	void OnAddStream(webrtc::scoped_refptr<webrtc::MediaStreamInterface> stream) override
 	{
 		PrivateListener::OnAddStream(stream);
 		observerJni.OnAddStream(stream);
 	}
 
-	void OnRemoveStream(rtc::scoped_refptr<webrtc::MediaStreamInterface> stream) override
+	void OnRemoveStream(webrtc::scoped_refptr<webrtc::MediaStreamInterface> stream) override
 	{
 		PrivateListener::OnRemoveStream(stream);
 		observerJni.OnRemoveStream(stream);
 	}
 
-	void OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) override
+	void OnDataChannel(webrtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) override
 	{
 		PrivateListener::OnDataChannel(dataChannel);
 		observerJni.OnDataChannel(dataChannel);
@@ -67,7 +67,7 @@ public:
 		observerJni.OnIceCandidate(candidate);
 	}
 
-	void OnIceCandidatesRemoved(const std::vector<cricket::Candidate>& candidates) override
+	void OnIceCandidatesRemoved(const std::vector<webrtc::Candidate>& candidates) override
 	{
 		PrivateListener::OnIceCandidatesRemoved(candidates);
 		observerJni.OnIceCandidatesRemoved(candidates);
@@ -80,20 +80,20 @@ public:
 	}
 
 	void OnAddTrack(
-	  rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
-	  const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams) override
+	  webrtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
+	  const std::vector<webrtc::scoped_refptr<webrtc::MediaStreamInterface>>& streams) override
 	{
 		PrivateListener::OnAddTrack(receiver, streams);
 		observerJni.OnAddTrack(receiver, streams);
 	}
 
-	void OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) override
+	void OnTrack(webrtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) override
 	{
 		PrivateListener::OnTrack(transceiver);
 		observerJni.OnTrack(transceiver);
 	}
 
-	void OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override
+	void OnRemoveTrack(webrtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override
 	{
 		PrivateListener::OnRemoveTrack(receiver);
 		observerJni.OnRemoveTrack(receiver);

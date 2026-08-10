@@ -1,14 +1,14 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(mediasoupclient_so LANGUAGES CXX)
 
 # Set version number.
 set(mediasoup_client_so_VERSION_MAJOR 3)
-set(mediasoup_client_so_VERSION_MINOR 4)
-set(mediasoup_client_so_VERSION_PATCH 1)
+set(mediasoup_client_so_VERSION_MINOR 5)
+set(mediasoup_client_so_VERSION_PATCH 0)
 
 # C++ standard requirements.
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(
@@ -69,7 +69,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	"${SOURCE_DIR}/include"
 	"${PROJECT_SOURCE_DIR}/deps/libmediasoupclient/include"
 	"${PROJECT_SOURCE_DIR}/deps/libmediasoupclient/test/include"
-	"${PROJECT_SOURCE_DIR}/deps/libmediasoupclient/deps/libsdptransform/include"
+	# libsdptransform (json.hpp) приходит транзитивно из таргета mediasoupclient,
+	# который тянет его через FetchContent в ${libsdptransform_SOURCE_DIR}/include.
 	"${LIBWEBRTC_INCLUDE_PATH}"
 	"${LIBWEBRTC_INCLUDE_PATH}/third_party/abseil-cpp"
 )
