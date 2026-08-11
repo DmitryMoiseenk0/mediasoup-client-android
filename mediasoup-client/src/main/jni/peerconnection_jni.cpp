@@ -24,7 +24,7 @@ static jlong JNI_PeerConnection_NewPeerConnection(
 {
 	MSC_TRACE();
 
-	auto listener = new PrivateListenerJni(env, webrtc::JavaParamRef<jobject>(nativeListener));
+	auto listener = new PrivateListenerJni(env, webrtc::JavaParamRef<jobject>(env, nativeListener.obj()));
 	PeerConnection::Options options;
 	JavaToNativeOptions(env, configuration, j_peerConnection_factory, options);
 
@@ -63,7 +63,7 @@ static jboolean JNI_PeerConnection_SetConfiguration(
 	webrtc::PeerConnectionInterface::RTCConfiguration rtc_config(
 	  webrtc::PeerConnectionInterface::RTCConfigurationType::kAggressive);
 	webrtc::jni::JavaToNativeRTCConfiguration(
-	  env, webrtc::JavaParamRef<jobject>(j_rtc_config), &rtc_config);
+	  env, webrtc::JavaParamRef<jobject>(env, j_rtc_config.obj()), &rtc_config);
 	bool result = ExtractNativePC(env, j_pc)->SetConfiguration(rtc_config);
 	return static_cast<jboolean>(result);
 }
@@ -74,7 +74,7 @@ static ScopedJavaLocalRef<jstring> JNI_PeerConnection_CreateOffer(
 	MSC_TRACE();
 
 	std::unique_ptr<webrtc::MediaConstraints> constraints =
-	  webrtc::jni::JavaToNativeMediaConstraints(env, webrtc::JavaParamRef<jobject>(j_constraints));
+	  webrtc::jni::JavaToNativeMediaConstraints(env, webrtc::JavaParamRef<jobject>(env, j_constraints.obj()));
 	webrtc::PeerConnectionInterface::RTCOfferAnswerOptions options;
 	webrtc::CopyConstraintsIntoOfferAnswerOptions(constraints.release(), &options);
 
@@ -88,7 +88,7 @@ static ScopedJavaLocalRef<jstring> JNI_PeerConnection_CreateAnswer(
 	MSC_TRACE();
 
 	std::unique_ptr<webrtc::MediaConstraints> constraints =
-	  webrtc::jni::JavaToNativeMediaConstraints(env, webrtc::JavaParamRef<jobject>(j_constraints));
+	  webrtc::jni::JavaToNativeMediaConstraints(env, webrtc::JavaParamRef<jobject>(env, j_constraints.obj()));
 	webrtc::PeerConnectionInterface::RTCOfferAnswerOptions options;
 	webrtc::CopyConstraintsIntoOfferAnswerOptions(constraints.release(), &options);
 
@@ -198,7 +198,7 @@ static ScopedJavaLocalRef<jobject> JNI_PeerConnection_AddTransceiverWithTrack(
 	auto track       = reinterpret_cast<webrtc::MediaStreamTrackInterface*>(native_track);
 	auto transceiver = ExtractNativePC(env, j_pc)->AddTransceiver(
 	  webrtc::scoped_refptr<webrtc::MediaStreamTrackInterface>(track),
-	  webrtc::jni::JavaToNativeRtpTransceiverInit(env, webrtc::JavaParamRef<jobject>(j_init.obj())));
+	  webrtc::jni::JavaToNativeRtpTransceiverInit(env, webrtc::JavaParamRef<jobject>(env, j_init.obj())));
 	if (transceiver == nullptr)
 	{
 		MSC_ERROR("Failed to add transceiver");
@@ -217,7 +217,7 @@ static ScopedJavaLocalRef<jobject> JNI_PeerConnection_AddTransceiverOfType(
 	MSC_TRACE();
 
 	auto media_type =
-	  webrtc::jni::JavaToNativeMediaType(env, webrtc::JavaParamRef<jobject>(j_media_type));
+	  webrtc::jni::JavaToNativeMediaType(env, webrtc::JavaParamRef<jobject>(env, j_media_type.obj()));
 	auto transceiver = ExtractNativePC(env, j_pc)->AddTransceiver(media_type);
 	if (transceiver == nullptr)
 	{

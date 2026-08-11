@@ -9,12 +9,13 @@
 #include "sdk/android/native_api/jni/java_types.h"
 #include <PeerConnection.hpp>
 #include <sdk/android/src/jni/pc/peer_connection.h>
+#include <optional>
 
 namespace mediasoupclient
 {
 ScopedJavaLocalRef<jstring> NativeToJavaString(JNIEnv* jni, const std::string& str);
 
-ScopedJavaLocalRef<jstring> NativeToJavaString(JNIEnv* jni, const absl::optional<std::string>& str);
+ScopedJavaLocalRef<jstring> NativeToJavaString(JNIEnv* jni, const std::optional<std::string>& str);
 
 std::string JavaToNativeString(JNIEnv* jni, const JavaRef<jstring>& j_string);
 

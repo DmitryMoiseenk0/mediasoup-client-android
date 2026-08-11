@@ -237,7 +237,7 @@ static ScopedJavaLocalRef<jobject> JNI_SendTransport_Produce(
 		{
 			encodings = webrtc::JavaToNativeVector<webrtc::RtpEncodingParameters>(
 			  env,
-			  webrtc::JavaParamRef<jobjectArray>(j_encodings.obj()),
+			  webrtc::JavaParamRef<jobjectArray>(env, j_encodings.obj()),
 			  &webrtc::jni::JavaToNativeRtpEncodingParameters);
 		}
 		json* codecOptions = nullptr;

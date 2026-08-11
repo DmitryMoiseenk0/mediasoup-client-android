@@ -165,6 +165,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 	$<$<PLATFORM_ID:Windows>:NOMINMAX>
 	$<$<PLATFORM_ID:Windows>:WIN32_LEAN_AND_MEAN>
 	$<$<PLATFORM_ID:Darwin>:WEBRTC_MAC>
+	$<$<PLATFORM_ID:Android>:WEBRTC_ANDROID>
 )
 
 install(TARGETS mediasoupclient DESTINATION lib)
