@@ -167,7 +167,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 	$<$<PLATFORM_ID:Darwin>:WEBRTC_MAC>
 	$<$<PLATFORM_ID:Android>:WEBRTC_ANDROID>
 	WEBRTC_USE_H264
-
 )
 
 install(TARGETS mediasoupclient DESTINATION lib)
